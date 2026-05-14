@@ -32,6 +32,15 @@ jobs:
           repository: PoomSmart/YTVideoOverlay
           path: YTVideoOverlay
 
+      - name: Checkout Full Protobuf Runtime
+        uses: actions/checkout@v4
+        with:
+          repository: google/protobuf
+          ref: v3.25.1
+          path: protobuf_full
+          sparse-checkout: |
+            objectivec
+
       - name: Install Dependencies
         run: brew install make ldid dpkg
 
@@ -49,21 +58,11 @@ jobs:
           git checkout
           mv *.sdk ~/theos/sdks
 
-      - name: Prepare Protobuf Headers
+      - name: Prepare Header Structure
         run: |
-          mkdir -p protobuf/objectivec
-          cd protobuf/objectivec
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBDescriptor.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBMessage.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBUnknownField.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBUnknownFieldSet.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBProtocolBuffers_RuntimeSupport.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBArray.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBDictionary.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBExtensionInternals.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBExtensionRegistry.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBRootObject.h
-          curl -O https://raw.githubusercontent.com/PoomSmart/Protobuf-C/master/objectivec/GPBUtilities.h
+          mkdir -p protobuf
+          cp -r protobuf_full/objectivec protobuf/
+          ln -s YouTubeHeader YTHeaders 2>/dev/null || true
 
       - name: Download Roothide Header
         run: |
@@ -71,9 +70,8 @@ jobs:
 
       - name: Build Tweak
         run: |
-          ln -s YouTubeHeader YTHeaders 2>/dev/null || true
           cd YTLite
-          make clean package FINALPACKAGE=1
+          make clean package FINALPACKAGE=1 ADDITIONAL_OBJCFLAGS="-I../protobuf/objectivec"
         env:
           THEOS: ~/theos
 
