@@ -1,0 +1,16 @@
+name: Manual Build DEB
+on:
+  workflow_dispatch:
+    inputs:
+      tweak_version:
+        description: "Version to build (e.g. 5.2b4)"
+        default: "5.2b4"
+        required: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build_tweaks.yml
+    with:
+      tweak_version: ${{ github.event.inputs.tweak_version }}
+      enable_youpip: true
+      enable_ytuhd: true
