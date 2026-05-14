@@ -30,8 +30,16 @@ jobs:
           git checkout
           mv *.sdk ~/theos/sdks
 
+      - name: Clone Header Dependencies
+        run: |
+          cd ..
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/PSHeader.git
+          ln -s YouTubeHeader YTHeaders 
+
       - name: Download Roothide Header
         run: |
+          curl -Lo ~/theos/include/roothide.h https://raw.githubusercontent.com/roothide/RoothideLogos/main/roothide.h || \
           curl -Lo ~/theos/include/roothide.h https://raw.githubusercontent.com/roothide/RoothideLogos/master/roothide.h
 
       - name: Build Tweak
