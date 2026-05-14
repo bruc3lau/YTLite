@@ -1,20 +1,43 @@
 name: Manual Build DEB
 on:
   workflow_dispatch:
-    inputs:
-      tweak_version:
-        description: "Version to build (e.g. 5.2b4)"
-        default: "5.2b4"
-        required: true
 
 jobs:
   build:
-    uses: ./.github/workflows/_build_tweaks.yml
-    with:
-      tweak_version: ${{ github.event.inputs.tweak_version }}
-      enable_youpip: true
-      enable_ytuhd: true
-      enable_yq: false
-      enable_ryd: false
-      enable_ytabc: false
-      enable_demc: false
+    name: Build YTLite DEB
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: v5.2b4
+          submodules: recursive
+
+      - name: Install Dependencies
+        run: brew install make ldid dpkg
+
+      - name: Setup Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git ~/theos
+          echo "THEOS=~/theos" >> $GITHUB_ENV
+          echo "~/theos/bin" >> $GITHUB_PATH
+
+      - name: Download iOS SDK
+        run: |
+          git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/theos/sdks/
+          cd sdks
+          git sparse-checkout set --no-cone iPhoneOS16.5.sdk
+          git checkout
+          mv *.sdk ~/theos/sdks
+
+      - name: Build Tweak
+        run: |
+          make clean package FINALPACKAGE=1
+        env:
+          THEOS: ~/theos
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ytlite-free-deb
+          path: packages/*.deb
