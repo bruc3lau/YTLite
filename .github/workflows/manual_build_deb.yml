@@ -36,6 +36,11 @@ jobs:
           git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git
           git clone --quiet --depth=1 https://github.com/PoomSmart/PSHeader.git
           git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
+          
+          git clone --quiet --depth=1 https://github.com/PoomSmart/protobuf-objc-headers.git protobuf_tmp
+          mkdir -p protobuf/objectivec
+          cp protobuf_tmp/*.h protobuf/objectivec/
+          
           ln -s YouTubeHeader YTHeaders 2>/dev/null || true
 
       - name: Download Roothide Header
@@ -44,7 +49,7 @@ jobs:
 
       - name: Build Tweak
         run: |
-          ls -R ../YouTubeHeader | head -n 20
+          ls -R ../protobuf/objectivec | head -n 5
           make clean package FINALPACKAGE=1
         env:
           THEOS: ~/theos
