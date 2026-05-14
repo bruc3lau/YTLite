@@ -7,11 +7,36 @@ jobs:
     name: Build YTLite DEB
     runs-on: macos-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout YTLite
         uses: actions/checkout@v4
         with:
           ref: v5.2b4
+          path: YTLite
           submodules: recursive
+
+      - name: Checkout YouTubeHeader
+        uses: actions/checkout@v4
+        with:
+          repository: PoomSmart/YouTubeHeader
+          path: YouTubeHeader
+
+      - name: Checkout PSHeader
+        uses: actions/checkout@v4
+        with:
+          repository: PoomSmart/PSHeader
+          path: PSHeader
+
+      - name: Checkout YTVideoOverlay
+        uses: actions/checkout@v4
+        with:
+          repository: PoomSmart/YTVideoOverlay
+          path: YTVideoOverlay
+
+      - name: Checkout Protobuf Headers
+        uses: actions/checkout@v4
+        with:
+          repository: PoomSmart/protobuf-objc-headers
+          path: protobuf_tmp
 
       - name: Install Dependencies
         run: brew install make ldid dpkg
@@ -30,17 +55,10 @@ jobs:
           git checkout
           mv *.sdk ~/theos/sdks
 
-      - name: Clone Header Dependencies
+      - name: Prepare Header Structure
         run: |
-          cd ..
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git
-          git clone --quiet --depth=1 https://github.com/PoomSmart/PSHeader.git
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
-          
-          git clone --quiet --depth=1 https://github.com/PoomSmart/protobuf-objc-headers.git protobuf_tmp
           mkdir -p protobuf/objectivec
           cp protobuf_tmp/*.h protobuf/objectivec/
-          
           ln -s YouTubeHeader YTHeaders 2>/dev/null || true
 
       - name: Download Roothide Header
@@ -49,7 +67,7 @@ jobs:
 
       - name: Build Tweak
         run: |
-          ls -R ../protobuf/objectivec | head -n 5
+          cd YTLite
           make clean package FINALPACKAGE=1
         env:
           THEOS: ~/theos
@@ -58,4 +76,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ytlite-free-deb
-          path: packages/*.deb
+          path: YTLite/packages/*.deb
