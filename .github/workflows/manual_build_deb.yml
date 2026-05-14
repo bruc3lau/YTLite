@@ -35,15 +35,16 @@ jobs:
           cd ..
           git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git
           git clone --quiet --depth=1 https://github.com/PoomSmart/PSHeader.git
-          ln -s YouTubeHeader YTHeaders 
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
+          ln -s YouTubeHeader YTHeaders 2>/dev/null || true
 
       - name: Download Roothide Header
         run: |
-          curl -Lo ~/theos/include/roothide.h https://raw.githubusercontent.com/roothide/RoothideLogos/main/roothide.h || \
-          curl -Lo ~/theos/include/roothide.h https://raw.githubusercontent.com/roothide/RoothideLogos/master/roothide.h
+          curl -Lo ~/theos/include/roothide.h https://raw.githubusercontent.com/roothide/libroothide/main/roothide.h
 
       - name: Build Tweak
         run: |
+          ls -R ../YouTubeHeader | head -n 20
           make clean package FINALPACKAGE=1
         env:
           THEOS: ~/theos
